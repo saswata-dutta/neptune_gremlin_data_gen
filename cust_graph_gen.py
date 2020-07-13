@@ -1,6 +1,10 @@
 import random
 from time import time
 
+
+CUST_PREFIX = "aws__customer__"
+CUST_VERTEX = "customer"
+CUST_EDGE = "has_customer"
 #####
 
 def print_headers(fout_cust, fout_cust_edge):
@@ -13,7 +17,7 @@ def print_headers(fout_cust, fout_cust_edge):
 def new_cust(count):
         prefix = str(count).zfill(7)
         suffix = str(random.randrange(100000)).zfill(5)
-        return "C_" + prefix + suffix
+        return CUST_PREFIX + prefix + suffix
 
 CREATED_AT = int(time())
 CREATED_BY = '"AUTO-INGEST"'
@@ -33,7 +37,7 @@ with open('sub_groups_shf', 'r') as fin_sub_groups:
                 if i == next_block:
                     cust = new_cust(i + 1)
                     next_block = random.randint(i + 1, i + 50)
-                    print(f"{cust},{CREATED_BY},{CREATED_AT},aws_customer", file = fout_cust)
+                    print(f"{cust},{CREATED_BY},{CREATED_AT},{CUST_VERTEX}", file = fout_cust)
 
                 sub_group = line.strip()
-                print(f"{sub_group},{cust},has_customer,{CREATED_BY},{CREATED_AT}", file = fout_cust_edge)
+                print(f"{sub_group},{cust},{CUST_EDGE},{CREATED_BY},{CREATED_AT}", file = fout_cust_edge)

@@ -2,12 +2,21 @@ from time import time
 import random
 import sys
 
+
+ACC_PREFIX = "aws__account__"
+ACC_VERTEX = "account"
+PAY_ACC_EDGE = "has_payer_account"
+
+SFID_PREFIX = "aws__sfid__"
+SFID_VERTEX = "sfid"
+SFID_EDGE = "has_sfid"
+
 ###########
 
 def new_sfid(sfid_count):
         prefix = str(sfid_count).zfill(9)
         suffix = str(random.randrange(1000)).zfill(3)
-        return "S_" + prefix + suffix
+        return SFID_PREFIX + prefix + suffix
 
 def print_headers(fout_acc, fout_sfid, fout_acc_sfid):
     V_HEADERS = "~id,createdBy:String,createdAt:Long,~label"
@@ -45,19 +54,19 @@ with open('acc_shf', 'r') as fin_acc:
                     block_pos = 0
 
                     while i < LIMIT:
-                        acc = "A_" + fin_acc.readline().strip()
+                        acc = ACC_PREFIX + fin_acc.readline().strip()
 
                         sfid_block_sz = BLOCK_SZ[block_pos]
                         
                         if not sfid or i % sfid_block_sz == 0:
                             sfid = new_sfid(sfid_count)
-                            print(f"{sfid},{CREATED_BY},{CREATED_AT},aws_sfid", file = fout_sfid)
+                            print(f"{sfid},{CREATED_BY},{CREATED_AT},{SFID_VERTEX}", file = fout_sfid)
                             print(sfid, file = fout_sub_groups)
                             sfid_count += 1
 
                         sfid_edge_id = f"{acc}_{sfid}"
-                        print(f"{acc},{CREATED_BY},{CREATED_AT},aws_account", file = fout_acc)
-                        print(f"{acc},{sfid},has_sfid,{CREATED_BY},{CREATED_AT}", file = fout_acc_sfid)
+                        print(f"{acc},{CREATED_BY},{CREATED_AT},{ACC_VERTEX}", file = fout_acc)
+                        print(f"{acc},{sfid},{SFID_EDGE},{CREATED_BY},{CREATED_AT}", file = fout_acc_sfid)
 
                         if i > 0 and i % BKT_SZ == 0:
                             block_pos += 1
@@ -67,19 +76,19 @@ with open('acc_shf', 'r') as fin_acc:
 
                     while i < SIZE:
 
-                        payer_acc = "A_" + fin_acc.readline().strip()
-                        print(f"{payer_acc},{CREATED_BY},{CREATED_AT},aws_account", file = fout_acc)
+                        payer_acc = ACC_PREFIX + fin_acc.readline().strip()
+                        print(f"{payer_acc},{CREATED_BY},{CREATED_AT},{ACC_VERTEX}", file = fout_acc)
                         print(payer_acc, file = fout_sub_groups)
                         i += 1
 
                         payer_block_sz = random.randrange(min(1000, SIZE - i))
 
                         while i + payer_block_sz < SIZE:
-                            acc = "A_" + fin_acc.readline().strip()
-                            print(f"{acc},{CREATED_BY},{CREATED_AT},aws_account", file = fout_acc)
+                            acc = ACC_PREFIX + fin_acc.readline().strip()
+                            print(f"{acc},{CREATED_BY},{CREATED_AT},{ACC_VERTEX}", file = fout_acc)
 
                             pay_edge_id = f"{acc}_{payer_acc}"
-                            print(f"{pay_edge_id},{acc},{payer_acc},has_payer_acc,{CREATED_BY},{CREATED_AT}", file = fout_acc_sfid)
+                            print(f"{pay_edge_id},{acc},{payer_acc},{PAY_ACC_EDGE},{CREATED_BY},{CREATED_AT}", file = fout_acc_sfid)
 
                             print(i)
                             i += 1
