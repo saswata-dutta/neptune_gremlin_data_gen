@@ -14,7 +14,7 @@ def print_headers(fout_acc, fout_sfid, fout_acc_sfid):
     print(V_HEADERS, file = fout_acc)
     print(V_HEADERS, file = fout_sfid)
 
-    E_HEADERS = "~id,~from,~to,~label,createdBy:String,createdAt:Long"
+    E_HEADERS = "~from,~to,~label,createdBy:String,createdAt:Long"
     print(E_HEADERS, file = fout_acc_sfid)
 
 ###########
@@ -25,7 +25,7 @@ if len(sys.argv) == 2:
 
 LIMIT = round(0.8 * SIZE)
 BKT_SZ = round(LIMIT / 4)
-BLOCK_SZ = [round(BKT_SZ / 10), round(BKT_SZ / 100), round(BKT_SZ / 1000), round(BKT_SZ / 10000)]
+BLOCK_SZ = [round(BKT_SZ / 10), round(BKT_SZ / 100), round(BKT_SZ / 1000), max(round(BKT_SZ / 10000), 1)]
 
 CREATED_AT = int(time())
 CREATED_BY = '"AUTO-INGEST"'
@@ -57,7 +57,7 @@ with open('acc_shf', 'r') as fin_acc:
 
                         sfid_edge_id = f"{acc}_{sfid}"
                         print(f"{acc},{CREATED_BY},{CREATED_AT},aws_account", file = fout_acc)
-                        print(f"{sfid_edge_id},{acc},{sfid},has_sfid,{CREATED_BY},{CREATED_AT}", file = fout_acc_sfid)
+                        print(f"{acc},{sfid},has_sfid,{CREATED_BY},{CREATED_AT}", file = fout_acc_sfid)
 
                         if i > 0 and i % BKT_SZ == 0:
                             block_pos += 1

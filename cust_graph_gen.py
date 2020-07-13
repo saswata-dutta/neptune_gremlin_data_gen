@@ -7,7 +7,7 @@ def print_headers(fout_cust, fout_cust_edge):
     V_HEADERS = "~id,createdBy:String,createdAt:Long,~label"
     print(V_HEADERS, file = fout_cust)
 
-    E_HEADERS = "~id,~from,~to,~label,createdBy:String,createdAt:Long"
+    E_HEADERS = "~from,~to,~label,createdBy:String,createdAt:Long"
     print(E_HEADERS, file = fout_cust_edge)
 
 def new_cust(count):
@@ -36,5 +36,4 @@ with open('sub_groups_shf', 'r') as fin_sub_groups:
                     print(f"{cust},{CREATED_BY},{CREATED_AT},aws_customer", file = fout_cust)
 
                 sub_group = line.strip()
-                cust_edge_id = f"{sub_group}_{cust}"
-                print(f"{cust_edge_id},{sub_group},{cust},has_customer,{CREATED_BY},{CREATED_AT}", file = fout_cust_edge)
+                print(f"{sub_group},{cust},has_customer,{CREATED_BY},{CREATED_AT}", file = fout_cust_edge)
