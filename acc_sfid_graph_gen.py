@@ -28,13 +28,13 @@ def print_headers(fout_acc, fout_sfid, fout_acc_sfid):
 
 ###########
 
-SIZE = 200000000 # num accounts in sample
-if len(sys.argv) == 2:
-    SIZE = int(sys.argv[1])
+SIZE = int(sys.argv[1]) # num accounts in sample
+
+assert SIZE >= 100000, "SIZE must be more than 100k"
 
 LIMIT = round(0.8 * SIZE)
 BKT_SZ = round(LIMIT / 4)
-BLOCK_SZ = [round(BKT_SZ / 10), round(BKT_SZ / 100), round(BKT_SZ / 1000), max(round(BKT_SZ / 10000), 1)]
+BLOCK_SZ = [round(BKT_SZ / 100), round(BKT_SZ / 1000), round(BKT_SZ / 10000), max(round(BKT_SZ / 100000), 1)]
 
 CREATED_AT = int(time())
 CREATED_BY = '"AUTO-INGEST"'
@@ -81,7 +81,7 @@ with open('acc_shf', 'r') as fin_acc:
                         print(payer_acc, file = fout_sub_groups)
                         i += 1
 
-                        payer_block_sz = random.randrange(min(1000, SIZE - i))
+                        payer_block_sz = random.randrange(min(1000, SIZE - i, 1))
 
                         while i + payer_block_sz < SIZE:
                             acc = ACC_PREFIX + fin_acc.readline().strip()
