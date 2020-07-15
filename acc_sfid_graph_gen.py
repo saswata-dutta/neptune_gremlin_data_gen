@@ -18,13 +18,13 @@ def new_sfid(sfid_count):
         suffix = str(random.randrange(1000)).zfill(3)
         return SFID_PREFIX + prefix + suffix
 
-def print_headers(fout_acc, fout_sfid, fout_acc_sfid):
-    V_HEADERS = "~id,createdBy:String,createdAt:Long,~label"
+def print_headers(fout_acc, fout_sfid, fout_acc_edges):
+    V_HEADERS = "~id,createdBy:String(single),createdAt:Long(single),~label"
     print(V_HEADERS, file = fout_acc)
     print(V_HEADERS, file = fout_sfid)
 
-    E_HEADERS = "~from,~to,~label,createdBy:String,createdAt:Long"
-    print(E_HEADERS, file = fout_acc_sfid)
+    E_HEADERS = "~id,~from,~to,~label,createdBy:String(single),createdAt:Long(single)"
+    print(E_HEADERS, file = fout_acc_edges)
 
 ###########
 
@@ -43,16 +43,17 @@ CREATED_BY = '"AUTO-INGEST"'
 with open('acc_shf', 'r') as fin_acc:
     with open('acc_vertex', 'w') as fout_acc:
         with open('sfid_vertex', 'w') as fout_sfid:
-            with open('acc_sfid_edge', 'w') as fout_acc_sfid:
+            with open('acc_sfid_edge', 'w') as fout_acc_edges:
                 with open('sub_groups', 'w') as fout_sub_groups:
 
-                    print_headers(fout_acc, fout_sfid, fout_acc_sfid)
+                    print_headers(fout_acc, fout_sfid, fout_acc_edges)
 
                     i = 0
                     sfid_count = 0
                     sfid = None
                     block_pos = 0
 
+# gen SFID
                     while i < LIMIT:
                         acc = ACC_PREFIX + fin_acc.readline().strip()
 
@@ -64,16 +65,16 @@ with open('acc_shf', 'r') as fin_acc:
                             print(sfid, file = fout_sub_groups)
                             sfid_count += 1
 
-                        sfid_edge_id = f"{acc}_{sfid}"
+                        sfid_edge_id = f"{SFID_EDGE}_{acc}_{sfid}"
                         print(f"{acc},{CREATED_BY},{CREATED_AT},{ACC_VERTEX}", file = fout_acc)
-                        print(f"{acc},{sfid},{SFID_EDGE},{CREATED_BY},{CREATED_AT}", file = fout_acc_sfid)
+                        print(f"{sfid_edge_id},{acc},{sfid},{SFID_EDGE},{CREATED_BY},{CREATED_AT}", file = fout_acc_edges)
 
                         if i > 0 and i % BKT_SZ == 0:
                             block_pos += 1
 
-                        print(i)
                         i += 1
 
+# gen Pay acc
                     while i < SIZE:
 
                         payer_acc = ACC_PREFIX + fin_acc.readline().strip()
@@ -87,8 +88,7 @@ with open('acc_shf', 'r') as fin_acc:
                             acc = ACC_PREFIX + fin_acc.readline().strip()
                             print(f"{acc},{CREATED_BY},{CREATED_AT},{ACC_VERTEX}", file = fout_acc)
 
-                            pay_edge_id = f"{acc}_{payer_acc}"
-                            print(f"{pay_edge_id},{acc},{payer_acc},{PAY_ACC_EDGE},{CREATED_BY},{CREATED_AT}", file = fout_acc_sfid)
+                            pay_edge_id = f"{PAY_ACC_EDGE}_{acc}_{payer_acc}"
+                            print(f"{pay_edge_id},{acc},{payer_acc},{PAY_ACC_EDGE},{CREATED_BY},{CREATED_AT}", file = fout_acc_edges)
 
-                            print(i)
                             i += 1
